@@ -42,7 +42,7 @@ const Sidebar = () => {
       <li>Music</li>
       <li>Sports</li>
       <li>Gaming</li>
-      <li>Movies</li>
+      <li>Moviess</li>
       </ul>
     </div>
   )
