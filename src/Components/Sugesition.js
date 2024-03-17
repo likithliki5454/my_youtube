@@ -11,7 +11,7 @@ const Sugesition = ({videoinf}) => {
       };
 
   return (
-    <div className='p-2 m-2 w-72 shadow-lg' onClick={handleLinkClick}>
+    <div className='p-2 m-2 w-9/12 shadow-lg' onClick={handleLinkClick}>
       <img className='rounded-lg' src={thumbnails.medium.url}/> 
       <ul>
       <li className='font-bold py-2'>{title}</li>

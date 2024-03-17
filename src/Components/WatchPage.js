@@ -1,16 +1,26 @@
 import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { SearchResults, closemenu } from '../utils/appslice';
-import {  Link, useSearchParams } from 'react-router-dom';
+import {  closemenu } from '../utils/appslice';
+import { Link, useSearchParams } from 'react-router-dom';
 import { Google_API_KEY, YouTube_API_Sug } from '../utils/Constants';
 import Sugesition from './Sugesition';
+import profilimg from '../images/profile.png'
+import generate from './Helper';
+import { generatecomment } from '../utils/commentslice';
+
 
 const WatchPage = () => {
+
   const [params] = useSearchParams();
   const [videoInfo, setVideoInfo] = useState(null);
   const [comments, setComments] = useState([]);
-  const [videos,setvideos]=useState()
+  const [videos, setvideos] = useState()
+  const [inputcom, setinputcom] = useState([])
+
   const dispatch = useDispatch();
+
+
+const menubotton=useSelector(store=>store.app1.ismenuopen)
 
 
   const fetchVideo = async () => {
@@ -45,16 +55,77 @@ const WatchPage = () => {
     }
   }
 
+  const commentsresult = useSelector((store) => store.Comment?.cdata)
+  console.log(commentsresult);
+
+
+
+
   useEffect(() => {
-    fetchVideo()
+    fetchVideo();
     dispatch(closemenu());
     fetchVideoInfo();
+
+    const interval = setInterval(() => {
+      const newRandomName = generate();
+      dispatch(generatecomment({
+        name: newRandomName.name,
+        data: newRandomName.data,
+      }));
+    }, 2000);
+
+    return () => {
+      clearInterval(interval);
+    };
   }, []);
 
+
+
+  const submitform=(e)=>{
+    e.preventDefault()
+    if(inputcom==='') return null
+    dispatch(generatecomment({
+      name: 'Likith',
+      data: inputcom,
+    }));
+
+    setinputcom('')
+    
+  }
+
   return (
-    <div className='flex w-9/12 mx-auto mt-24'>
-      <div>
-        <iframe
+    <div className='flex   mt-24'>
+
+   
+        <div className='w-3/12'>
+ {     !menubotton ? <div>
+        <h1 className='font-bold text-center '>Live Chat</h1>
+        <div className=' border-2 overflow-y-auto flex flex-col-reverse h-[35rem]'>
+          {commentsresult && commentsresult.length > 1 && commentsresult.slice(0).reverse().map((c, index) => (
+            <div key={index} className='m-2  flex'>
+              <img className='h-7 w-6' src={profilimg} />
+              <p className='ml-2 font-bold'>{c.name}</p>
+              <p className='ml-2'>{c.data}</p>
+            </div>
+          ))}
+        </div>
+        <form className='flex ml-2' onSubmit={submitform}>
+          <input className='border-2' placeholder='comment...' value={inputcom} onChange={(e)=>setinputcom(e.target.value)}/>
+          <button className='bg-lime-300 p-2'>Send</button>
+        </form>
+
+        </div>
+     :'' }
+      </div >
+
+
+
+
+
+
+
+      <div className='w-10/12'>
+        <iframe className='w-11/12'
           width="1350"
           height="500"
           src={"https://www.youtube.com/embed/" + params.get('v')}
@@ -74,13 +145,13 @@ const WatchPage = () => {
           ))}
         </div>
       </div>
-      <div>
-      <h1 className='font-bold text-center'>Sugesitions</h1>
-      {videos?.map((video) => (
-        <Link key={video.id.videoId} to={'/watch?v=' + video.id.videoId}>
-          <Sugesition key={video.id.videoId} videoinf={video} />
-        </Link>
-      ))}
+      <div className='w-3/12'>
+        <h1 className='font-bold text-center'>Sugesitions</h1>
+        {videos?.map((video) => (
+          <Link key={video.id.videoId} to={'/watch?v=' + video.id.videoId}>
+            <Sugesition key={video.id.videoId} videoinf={video} />
+          </Link>
+        ))}
       </div>
     </div>
   )
